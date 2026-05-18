@@ -2,6 +2,7 @@ name: Get Hot News
 
 on:
   schedule:
+    # schedule re-registered at 2026-05-18 17:48 +08:00
     # 北京时间 08:30 / 11:50 / 17:10（GitHub Actions 使用 UTC，需减 8 小时）
     - cron: "30 0 * * *"
     - cron: "50 3 * * *"
