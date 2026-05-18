@@ -1,0 +1,33 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # GitHub Actions 使用 UTC；北京时间每天 07:00 检查源头更新。
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-upstream-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Sync with sansan0/TrendRadar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/sansan0/TrendRadar.git
+          git fetch upstream master
+          git merge upstream/master --no-edit
+          git push origin HEAD:${{ github.ref_name }}
