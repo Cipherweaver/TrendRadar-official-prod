@@ -3,10 +3,10 @@ name: Get Hot News
 on:
   schedule:
     # schedule re-registered at 2026-05-18 17:48 +08:00
-    # 北京时间 08:17 / 11:50 / 17:10（GitHub Actions 使用 UTC，需减 8 小时）
+    # 北京时间 08:17 / 11:37 / 17:23（GitHub Actions 使用 UTC，需减 8 小时）
     - cron: "17 0 * * *"
-    - cron: "50 3 * * *"
-    - cron: "10 9 * * *"
+    - cron: "37 3 * * *"
+    - cron: "23 9 * * *"
 
   workflow_dispatch:
 
