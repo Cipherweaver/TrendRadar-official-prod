@@ -27,6 +27,7 @@ from .senders import (
     send_to_email,
     send_to_feishu,
     send_to_ntfy,
+    send_to_pushplus,
     send_to_slack,
     send_to_telegram,
     send_to_wework,
@@ -286,6 +287,13 @@ class NotificationDispatcher:
                 ai_analysis, display_regions, standalone_data
             )
 
+        # PushPlus
+        if self.config.get("PUSHPLUS_TOKEN"):
+            results["pushplus"] = self._send_pushplus(
+                report_data, report_type, update_info, proxy_url, mode, rss_items, rss_new_items,
+                ai_analysis, display_regions, standalone_data
+            )
+
         # Telegram（需要配对验证）
         if self.config.get("TELEGRAM_BOT_TOKEN") and self.config.get("TELEGRAM_CHAT_ID"):
             results["telegram"] = self._send_telegram(
@@ -500,6 +508,45 @@ class NotificationDispatcher:
                 batch_size=self.config.get("MESSAGE_BATCH_SIZE", 4000),
                 batch_interval=self.config.get("BATCH_SEND_INTERVAL", 1.0),
                 msg_type=self.config.get("WEWORK_MSG_TYPE", "markdown"),
+                split_content_func=self.split_content_func,
+                rss_items=ri,
+                rss_new_items=rn,
+                ai_analysis=ai,
+                display_regions=display_regions or {},
+                standalone_data=sd,
+            ),
+        )
+
+    def _send_pushplus(
+        self,
+        report_data: Dict,
+        report_type: str,
+        update_info: Optional[Dict],
+        proxy_url: Optional[str],
+        mode: str,
+        rss_items: Optional[List[Dict]] = None,
+        rss_new_items: Optional[List[Dict]] = None,
+        ai_analysis: Optional[AIAnalysisResult] = None,
+        display_regions: Optional[Dict] = None,
+        standalone_data: Optional[Dict] = None,
+    ) -> bool:
+        rd, ri, rn, ai, sd = self._apply_display_regions(
+            report_data, display_regions, rss_items, rss_new_items, ai_analysis, standalone_data
+        )
+
+        return self._send_to_multi_accounts(
+            channel_name="PushPlus",
+            config_value=self.config["PUSHPLUS_TOKEN"],
+            send_func=lambda token, account_label: send_to_pushplus(
+                token=token,
+                report_data=rd,
+                report_type=report_type,
+                update_info=update_info,
+                proxy_url=proxy_url,
+                mode=mode,
+                account_label=account_label,
+                batch_size=self.config.get("MESSAGE_BATCH_SIZE", 4000),
+                batch_interval=self.config.get("BATCH_SEND_INTERVAL", 1.0),
                 split_content_func=self.split_content_func,
                 rss_items=ri,
                 rss_new_items=rn,

@@ -406,6 +406,7 @@ def _load_webhook_config(config_data: Dict) -> Dict:
     feishu = channels.get("feishu", {})
     dingtalk = channels.get("dingtalk", {})
     wework = channels.get("wework", {})
+    pushplus = channels.get("pushplus", {})
     telegram = channels.get("telegram", {})
     email = channels.get("email", {})
     ntfy = channels.get("ntfy", {})
@@ -421,6 +422,7 @@ def _load_webhook_config(config_data: Dict) -> Dict:
         # 企业微信
         "WEWORK_WEBHOOK_URL": _get_env_str("WEWORK_WEBHOOK_URL") or wework.get("webhook_url", ""),
         "WEWORK_MSG_TYPE": _get_env_str("WEWORK_MSG_TYPE") or wework.get("msg_type", "markdown"),
+        "PUSHPLUS_TOKEN": _get_env_str("PUSHPLUS_TOKEN") or pushplus.get("token", ""),
         # Telegram
         "TELEGRAM_BOT_TOKEN": _get_env_str("TELEGRAM_BOT_TOKEN") or telegram.get("bot_token", ""),
         "TELEGRAM_CHAT_ID": _get_env_str("TELEGRAM_CHAT_ID") or telegram.get("chat_id", ""),
@@ -466,6 +468,12 @@ def _print_notification_sources(config: Dict) -> None:
         count = min(len(accounts), max_accounts)
         source = "环境变量" if os.environ.get("WEWORK_WEBHOOK_URL") else "配置文件"
         notification_sources.append(f"企业微信({source}, {count}个账号)")
+
+    if config["PUSHPLUS_TOKEN"]:
+        accounts = parse_multi_account_config(config["PUSHPLUS_TOKEN"])
+        count = min(len(accounts), max_accounts)
+        source = "环境变量" if os.environ.get("PUSHPLUS_TOKEN") else "配置文件"
+        notification_sources.append(f"PushPlus({source}, {count}个账号)")
 
     if config["TELEGRAM_BOT_TOKEN"] and config["TELEGRAM_CHAT_ID"]:
         tokens = parse_multi_account_config(config["TELEGRAM_BOT_TOKEN"])

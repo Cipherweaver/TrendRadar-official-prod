@@ -315,6 +315,7 @@ class NewsAnalyzer:
                 cfg["FEISHU_WEBHOOK_URL"],
                 cfg["DINGTALK_WEBHOOK_URL"],
                 cfg["WEWORK_WEBHOOK_URL"],
+                cfg["PUSHPLUS_TOKEN"],
                 (cfg["TELEGRAM_BOT_TOKEN"] and cfg["TELEGRAM_CHAT_ID"]),
                 (
                     cfg["EMAIL_FROM"]
@@ -1901,6 +1902,7 @@ def _run_doctor(config_path: Optional[str] = None) -> bool:
             ("FEISHU_WEBHOOK_URL", "飞书"),
             ("DINGTALK_WEBHOOK_URL", "钉钉"),
             ("WEWORK_WEBHOOK_URL", "企业微信"),
+            ("PUSHPLUS_TOKEN", "PushPlus"),
             ("BARK_URL", "Bark"),
             ("SLACK_WEBHOOK_URL", "Slack"),
             ("GENERIC_WEBHOOK_URL", "通用Webhook"),
@@ -2061,6 +2063,7 @@ def _run_test_notification(config: Dict) -> bool:
                 config.get("FEISHU_WEBHOOK_URL"),
                 config.get("DINGTALK_WEBHOOK_URL"),
                 config.get("WEWORK_WEBHOOK_URL"),
+                config.get("PUSHPLUS_TOKEN"),
                 (config.get("TELEGRAM_BOT_TOKEN") and config.get("TELEGRAM_CHAT_ID")),
                 (config.get("EMAIL_FROM") and config.get("EMAIL_PASSWORD") and config.get("EMAIL_TO")),
                 (config.get("NTFY_SERVER_URL") and config.get("NTFY_TOPIC")),

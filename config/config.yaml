@@ -164,6 +164,8 @@ notification:
     wework:
       webhook_url: ""
       msg_type: "markdown"
+    pushplus:
+      token: ""
     telegram:
       bot_token: ""
       chat_id: ""

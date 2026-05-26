@@ -487,6 +487,102 @@ def send_to_wework(
     return True
 
 
+def send_to_pushplus(
+    token: str,
+    report_data: Dict,
+    report_type: str,
+    update_info: Optional[Dict] = None,
+    proxy_url: Optional[str] = None,
+    mode: str = "daily",
+    account_label: str = "",
+    *,
+    batch_size: int = 4000,
+    batch_interval: float = 1.0,
+    split_content_func: Callable = None,
+    rss_items: Optional[list] = None,
+    rss_new_items: Optional[list] = None,
+    ai_analysis: Any = None,
+    display_regions: Optional[Dict] = None,
+    standalone_data: Optional[Dict] = None,
+) -> bool:
+    headers = {"Content-Type": "application/json"}
+    proxies = None
+    if proxy_url:
+        proxies = {"http": proxy_url, "https": proxy_url}
+
+    log_prefix = f"PushPlus{account_label}" if account_label else "PushPlus"
+
+    ai_content = None
+    ai_stats = None
+    if ai_analysis:
+        ai_content = _render_ai_analysis(ai_analysis, "wework")
+        if getattr(ai_analysis, "success", False):
+            ai_stats = {
+                "total_news": getattr(ai_analysis, "total_news", 0),
+                "analyzed_news": getattr(ai_analysis, "analyzed_news", 0),
+                "max_news_limit": getattr(ai_analysis, "max_news_limit", 0),
+                "hotlist_count": getattr(ai_analysis, "hotlist_count", 0),
+                "rss_count": getattr(ai_analysis, "rss_count", 0),
+                "ai_mode": getattr(ai_analysis, "ai_mode", ""),
+            }
+
+    template_overhead = 300
+    batches = split_content_func(
+        report_data, "wework", update_info, max_bytes=batch_size - template_overhead, mode=mode,
+        rss_items=rss_items,
+        rss_new_items=rss_new_items,
+        ai_content=ai_content,
+        standalone_data=standalone_data,
+        ai_stats=ai_stats,
+        report_type=report_type,
+    )
+    batches = add_batch_headers(batches, "wework", batch_size)
+
+    print(f"{log_prefix}消息分为 {len(batches)} 批次发送 [{report_type}]")
+
+    for i, batch_content in enumerate(batches, 1):
+        content_size = len(batch_content.encode("utf-8"))
+        print(f"发送{log_prefix}第 {i}/{len(batches)} 批次，大小：{content_size} 字节 [{report_type}]")
+
+        payload = {
+            "token": token,
+            "title": f"TrendRadar 热点分析报告 - {report_type}",
+            "content": batch_content,
+            "template": "markdown",
+        }
+
+        try:
+            response = requests.post(
+                "https://www.pushplus.plus/send",
+                headers=headers,
+                json=payload,
+                proxies=proxies,
+                timeout=30,
+            )
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("code") == 200:
+                    print(f"{log_prefix}第 {i}/{len(batches)} 批次发送成功 [{report_type}]")
+                    if i < len(batches):
+                        time.sleep(batch_interval)
+                else:
+                    print(
+                        f"{log_prefix}第 {i}/{len(batches)} 批次发送失败 [{report_type}]，错误：{result.get('msg')}"
+                    )
+                    return False
+            else:
+                print(
+                    f"{log_prefix}第 {i}/{len(batches)} 批次发送失败 [{report_type}]，状态码：{response.status_code}"
+                )
+                return False
+        except Exception as e:
+            print(f"{log_prefix}第 {i}/{len(batches)} 批次发送出错 [{report_type}]：{e}")
+            return False
+
+    print(f"{log_prefix}所有 {len(batches)} 批次发送完成 [{report_type}]")
+    return True
+
+
 def send_to_telegram(
     bot_token: str,
     chat_id: str,

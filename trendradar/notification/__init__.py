@@ -42,6 +42,7 @@ from trendradar.notification.senders import (
     send_to_email,
     send_to_ntfy,
     send_to_bark,
+    send_to_pushplus,
     send_to_slack,
     SMTP_CONFIGS,
 )
@@ -70,6 +71,7 @@ __all__ = [
     "send_to_email",
     "send_to_ntfy",
     "send_to_bark",
+    "send_to_pushplus",
     "send_to_slack",
     "SMTP_CONFIGS",
     # 通知调度器
