@@ -104,6 +104,7 @@ def _load_notification_config(config_data: Dict) -> Dict:
         "MESSAGE_BATCH_SIZE": batch_size.get("default", 4000),
         "DINGTALK_BATCH_SIZE": batch_size.get("dingtalk", 20000),
         "FEISHU_BATCH_SIZE": batch_size.get("feishu", 29000),
+        "PUSHPLUS_BATCH_SIZE": batch_size.get("pushplus", 30000),
         "BARK_BATCH_SIZE": batch_size.get("bark", 3600),
         "SLACK_BATCH_SIZE": batch_size.get("slack", 4000),
         "BATCH_SEND_INTERVAL": advanced.get("batch_send_interval", 1.0),

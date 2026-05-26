@@ -496,7 +496,7 @@ def send_to_pushplus(
     mode: str = "daily",
     account_label: str = "",
     *,
-    batch_size: int = 4000,
+    batch_size: int = 30000,
     batch_interval: float = 1.0,
     split_content_func: Callable = None,
     rss_items: Optional[list] = None,
